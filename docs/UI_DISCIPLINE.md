@@ -35,8 +35,10 @@ The defenses, in order of authority:
 3. **The gallery is the witness.** `src/app/storybook` shows the whole system in
    one squint. If a new thing isn't there, the next person re-invents it — that
    is how drift starts.
-4. **The Playwright visual gate is non-skippable** (§9). No UI change ships
-   without screenshots at the contract widths in both themes.
+4. **The Playwright visual gate is non-skippable and runs LAST** (§9). Every UI
+   change ends with a real Playwright browser pass across the device matrix
+   (375 / 768 / 834 / 1440) in both themes, looping capture → fix → re-capture
+   until clean. No screenshots, not done.
 
 Everything below is the elaboration of those four.
 
@@ -310,17 +312,36 @@ verify, you don't re-tune per breakpoint.
 
 ---
 
-## 9. The Playwright MCP visual gate (every UI change, no exceptions)
+## 9. The Playwright visual gate (every UI change, runs LAST, no exceptions)
 
-No UI change ships without running it. The loop is:
+**This is the final step of every UI change — every single time, without being
+asked.** After the code is written and the lightweight checks pass, you launch a
+real Playwright browser against the running site and **loop until clean:**
 
-> **screenshot → inspect → fix → screenshot** (repeat until clean).
+> **capture → inspect → fix → re-capture** — repeat until the screenshots are
+> clean at **every device width in both themes.** A change is not done until a
+> clean pass exists. One pass that finds a defect is not the end of the loop; it
+> is the start of the next iteration.
 
-On every UI change, capture and check:
+Drive an **actual Playwright browser** (the project helper or the Playwright
+MCP) — never eyeball a single pasted image and call it checked. Headed mode is
+fine when a human is watching.
 
-- **Four states** (§6) where the view has data.
-- **Both contract widths:** 375 and 1440.
+**Capture across the full device matrix** (this is the responsive gate — "see it
+on different devices"):
+
+| Device class    | Width | Why                                              |
+| --------------- | ----- | ------------------------------------------------ |
+| **Mobile**      | 375   | Smallest contract width; no horizontal overflow. |
+| **Tablet/iPad** | 768   | Mid-layout; columns reflow sanely.               |
+| **Tablet-lg**   | 834   | iPad landscape-ish; in-between rhythm holds.     |
+| **Desktop**     | 1440  | Primary contract width.                          |
+
+At **each** width, capture and check:
+
 - **Both themes:** light and dark (semantic tokens must flip correctly).
+- **Four states** (§6) where the view has data.
+- **No horizontal overflow / no clipping** at any width (§8).
 - **Keyboard order:** tab through; order is logical, focus ring visible.
 - **Clean console:** no errors or warnings.
 - **Sane network:** no unexpected requests, no third-party font CDN, no 4xx/5xx.
@@ -330,7 +351,7 @@ On every UI change, capture and check:
 
 This gate is **non-skippable**, including when a design tool was unreachable
 (§1). Unreachable tooling means the design pass is _owed_; it does not waive the
-gate.
+gate. **It always runs last, and the loop always runs until clean.**
 
 ---
 
@@ -465,8 +486,9 @@ A UI change is done only when **all** of these are true:
       transforms not layout.
 - [ ] **No hardcoded user-facing strings** (§12) — copy lives in `src/content`.
 - [ ] **Within size limits** (§10) — aim ≤ 500 lines, hard cap 1000; clear names.
-- [ ] **Playwright visual gate passed** (§9) — screenshot→inspect→fix→screenshot;
-      four states, 375 & 1440, light & dark, keyboard order, clean console, sane
-      network, **squint test** holds.
+- [ ] **Playwright visual gate passed LAST** (§9) — a real browser pass that
+      loops capture→inspect→fix→re-capture **until clean** across the device
+      matrix (375 / 768 / 834 / 1440) in light & dark; four states, keyboard
+      order, clean console, sane network, **squint test** holds.
 
 If any box is unchecked, the change is **not done.**
