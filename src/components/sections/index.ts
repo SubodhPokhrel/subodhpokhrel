@@ -1,0 +1,9 @@
+export { Hero } from "./Hero";
+export { About } from "./About";
+export { Skills } from "./Skills";
+export { Experience } from "./Experience";
+export { WorkGrid } from "./WorkGrid";
+export { ProjectCard } from "./ProjectCard";
+export { Contact } from "./Contact";
+export { ContactForm } from "./ContactForm";
+export { Socials } from "./Socials";
