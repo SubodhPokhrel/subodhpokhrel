@@ -27,6 +27,7 @@ responsive, accessible.
 - **One component per file**, named export, per-folder barrel (`index.ts`). Pages/views compose; they don't define primitives.
 - **Accessibility is not optional.** Keyboard reachable, visible focus, honors `prefers-reduced-motion`, AA contrast.
 - **TypeScript strict.** No `any`. No unchecked index access.
+- **Playwright runs LAST on every UI change — always, unasked.** After the edit and the lightweight checks, launch a real Playwright browser against the running site and **loop `capture → inspect → fix → re-capture` until the screenshots are clean** across the device matrix **375 / 768 / 834 / 1440** in **both themes** (light + dark). Checking on the different device widths for responsiveness is part of this gate. No clean screenshot pass = not done. Full gate in [`docs/UI_DISCIPLINE.md` §9](docs/UI_DISCIPLINE.md).
 
 ## Project structure (summary — full map in ARCHITECTURE.md)
 
@@ -58,5 +59,7 @@ pnpm verify            # typecheck + lint + format:check + file-size + build
 ## Workflow
 
 - Work on a branch; reference the GitHub issue (`#n`, Project #1) in commits.
+- **The task tracker (TodoWrite) for any UI work always carries a final "Playwright visual check across devices (375/768/834/1440, light+dark) — loop until clean" item.** It is the last todo and is never dropped.
+- **End every UI change with the Playwright gate** (§9): a real browser pass that loops `capture → fix → re-capture` until clean across the device matrix in both themes. This runs last, after the code is written — every time.
 - Before opening a PR, run `pnpm verify` and `pnpm test` — both must be green.
 - Keep PRs scoped to one issue where possible.

@@ -120,6 +120,32 @@
   --glass-border: color-mix(in oklab, #ffffff 72%, transparent);
   --glass-highlight: rgba(255, 255, 255, 0.85);
 
+  /* Liquid-glass button (light): a transparent lens so the backdrop blooms
+     through, a crisp bright specular rim, a dark hairline that defines the
+     shape on any light surface, and inner+contact shadows for real depth. */
+  --gbtn-bg: color-mix(in oklab, #ffffff 28%, transparent);
+  --gbtn-bg-hover: color-mix(in oklab, #ffffff 44%, transparent);
+  --gbtn-filter: blur(14px) saturate(1.9) brightness(1.04) contrast(1.04);
+  --gbtn-streak: color-mix(in oklab, #ffffff 78%, transparent);
+  --gbtn-gloss: color-mix(in oklab, #ffffff 40%, transparent);
+  --gbtn-shade: color-mix(in oklab, #08080a 10%, transparent);
+  --gbtn-border: color-mix(in oklab, #08080a 12%, transparent);
+  --gbtn-border-hover: color-mix(in oklab, #08080a 22%, transparent);
+  --gbtn-shadow:
+    inset 0 1px 1.5px color-mix(in oklab, #ffffff 95%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, #ffffff 50%, transparent),
+    inset 0 10px 18px -12px color-mix(in oklab, #ffffff 75%, transparent),
+    inset 0 -8px 16px -10px color-mix(in oklab, #08080a 22%, transparent),
+    0 8px 22px -8px color-mix(in oklab, #08080a 22%, transparent),
+    0 1px 1px color-mix(in oklab, #08080a 8%, transparent);
+  --gbtn-shadow-hover:
+    inset 0 1px 2px color-mix(in oklab, #ffffff 98%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, #ffffff 64%, transparent),
+    inset 0 12px 20px -12px color-mix(in oklab, #ffffff 88%, transparent),
+    inset 0 -9px 18px -10px color-mix(in oklab, #08080a 26%, transparent),
+    0 12px 30px -8px color-mix(in oklab, #08080a 26%, transparent),
+    0 1px 1px color-mix(in oklab, #08080a 10%, transparent);
+
   --shadow-1: 0 1px 2px rgba(8, 8, 10, 0.06), 0 1px 1px rgba(8, 8, 10, 0.04);
   --shadow-2: 0 8px 24px -8px rgba(8, 8, 10, 0.16);
   --shadow-3: 0 24px 60px -16px rgba(8, 8, 10, 0.2);
@@ -144,6 +170,16 @@
     var(--aurora-3),
     var(--aurora-4),
     var(--aurora-1)
+  );
+  /* Richer, more saturated aurora for gradient TEXT — vivid iridescence that
+     reads on white, while the backdrop gradients stay soft. Same hue family. */
+  --gradient-aurora-text: linear-gradient(
+    100deg,
+    hsl(255 88% 62%),
+    hsl(282 82% 63%) 24%,
+    hsl(200 90% 58%) 50%,
+    hsl(330 85% 65%) 74%,
+    hsl(255 88% 62%)
   );
 
   --blur-glass: 18px;
@@ -173,6 +209,28 @@
   --glass-bg: color-mix(in oklab, #141417 55%, transparent);
   --glass-border: color-mix(in oklab, #ffffff 12%, transparent);
   --glass-highlight: rgba(255, 255, 255, 0.1);
+
+  /* Liquid-glass button (dark): tuning preserved from the original recipe. */
+  --gbtn-bg: color-mix(in oklab, var(--surface) 30%, transparent);
+  --gbtn-bg-hover: color-mix(in oklab, var(--surface) 42%, transparent);
+  --gbtn-filter: blur(24px) saturate(2.2) brightness(1.08);
+  --gbtn-streak: color-mix(in oklab, white 40%, transparent);
+  --gbtn-gloss: color-mix(in oklab, white 22%, transparent);
+  --gbtn-shade: color-mix(in oklab, black 20%, transparent);
+  --gbtn-border: color-mix(in oklab, var(--foreground) 18%, transparent);
+  --gbtn-border-hover: color-mix(in oklab, var(--foreground) 30%, transparent);
+  --gbtn-shadow:
+    inset 0 1px 0.5px color-mix(in oklab, white 75%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, white 6%, transparent),
+    inset 0 -9px 16px -10px color-mix(in oklab, black 55%, transparent),
+    0 10px 28px -8px color-mix(in oklab, black 50%, transparent),
+    0 1px 1px color-mix(in oklab, black 30%, transparent);
+  --gbtn-shadow-hover:
+    inset 0 1px 0.5px color-mix(in oklab, white 80%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, white 8%, transparent),
+    inset 0 -9px 16px -10px color-mix(in oklab, black 55%, transparent),
+    0 12px 32px -8px color-mix(in oklab, black 55%, transparent),
+    0 1px 1px color-mix(in oklab, black 30%, transparent);
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-2: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
@@ -264,15 +322,15 @@
       0 20px 60px -20px color-mix(in oklab, black 55%, transparent);
   }
 
-  /* Aurora gradient text */
+  /* Aurora gradient text — vivid, slowly flowing iridescence */
   .text-aurora {
-    background-image: var(--gradient-aurora);
-    background-size: 220% auto;
+    background-image: var(--gradient-aurora-text);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    animation: var(--animate-aurora-pan);
+    animation: aurora-pan 9s linear infinite;
   }
 
   /* Hairline aurora divider */
@@ -316,33 +374,29 @@
     color: var(--background);
   }
 
-  /* Liquid-glass control surface — frosted, refractive, top specular sheen */
+  /* Liquid-glass control surface — frosted, refractive, top specular sheen.
+     Per-theme tuning lives in the :root / [data-theme="dark"] token blocks
+     (--gbtn-*) so light and dark each read like real glass on their backdrop. */
   .glass-button {
-    background-color: color-mix(in oklab, var(--surface) 30%, transparent);
+    background-color: var(--gbtn-bg);
     background-image:
-      /* diagonal specular streak */
-      linear-gradient(125deg, color-mix(in oklab, white 40%, transparent) 0%, transparent 36%),
-      /* top gloss */
-        linear-gradient(180deg, color-mix(in oklab, white 22%, transparent) 0%, transparent 52%),
-      /* bottom shade for thickness */
-        linear-gradient(0deg, color-mix(in oklab, black 20%, transparent) 0%, transparent 42%);
-    backdrop-filter: blur(24px) saturate(2.2) brightness(1.08);
-    -webkit-backdrop-filter: blur(24px) saturate(2.2) brightness(1.08);
-    border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent);
-    box-shadow:
-      inset 0 1px 0.5px color-mix(in oklab, white 75%, transparent),
-      inset 0 0 0 1px color-mix(in oklab, white 6%, transparent),
-      inset 0 -9px 16px -10px color-mix(in oklab, black 55%, transparent),
-      0 10px 28px -8px color-mix(in oklab, black 50%, transparent),
-      0 1px 1px color-mix(in oklab, black 30%, transparent);
+      /* diagonal specular streak — the bright light band across the glass */
+      linear-gradient(125deg, var(--gbtn-streak) 0%, transparent 36%),
+      /* top gloss */ linear-gradient(180deg, var(--gbtn-gloss) 0%, transparent 52%),
+      /* bottom shade for thickness */ linear-gradient(0deg, var(--gbtn-shade) 0%, transparent 42%);
+    backdrop-filter: var(--gbtn-filter);
+    -webkit-backdrop-filter: var(--gbtn-filter);
+    border: 1px solid var(--gbtn-border);
+    box-shadow: var(--gbtn-shadow);
     transition:
       background-color var(--dur) var(--ease-out),
       border-color var(--dur) var(--ease-out),
       box-shadow var(--dur) var(--ease-out);
   }
   .glass-button:hover {
-    background-color: color-mix(in oklab, var(--surface) 42%, transparent);
-    border-color: color-mix(in oklab, var(--foreground) 30%, transparent);
+    background-color: var(--gbtn-bg-hover);
+    border-color: var(--gbtn-border-hover);
+    box-shadow: var(--gbtn-shadow-hover);
   }
 
   /* Gradient hairline border (no extra DOM) */
